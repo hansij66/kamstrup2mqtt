@@ -1,0 +1,6 @@
+
+paho-mqtt~=1.6.1
+# Debian: sudo apt-get install python3-paho-mqtt
+# sudo pip3 install paho-mqtt --user
+
+pymeterbus
