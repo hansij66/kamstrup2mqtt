@@ -164,17 +164,54 @@ class TaskReadHeatMeter(threading.Thread):
             # Build a dict of key:value, for MQTT JSON
             # Do some rework on received values
             for record in kamstrup_dict['body']['records']:
+              logger.debug(f"RECORD = {record}")
+
+              """
+              Multical 303:
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.ENERGY_WH', 'unit': 'MeasureUnit.WH', 'value': 70000}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.VOLUME', 'unit': 'MeasureUnit.M3', 'value': 69.66}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.MANUFACTURER_SPEC', 'unit': 'MeasureUnit.NONE', 'value': 2125}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.MANUFACTURER_SPEC', 'unit': 'MeasureUnit.NONE', 'value': 2166}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.ON_TIME', 'unit': 'MeasureUnit.SECONDS', 'value': 16038000}
+              RECORD = {'function': 'FunctionType.ERROR_STATE_VALUE', 'storage_number': 0, 'type': 'VIFUnit.ON_TIME', 'unit': 'MeasureUnit.SECONDS', 'value': 93600}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.FLOW_TEMPERATURE', 'unit': 'MeasureUnit.C', 'value': 31.560000000000002}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.RETURN_TEMPERATURE', 'unit': 'MeasureUnit.C', 'value': 30.330000000000002}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.TEMPERATURE_DIFFERENCE', 'unit': 'MeasureUnit.K', 'value': 1.23}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.POWER_W', 'unit': 'MeasureUnit.W', 'value': 2100}
+              RECORD = {'function': 'FunctionType.MAXIMUM_VALUE', 'storage_number': 0, 'type': 'VIFUnit.POWER_W', 'unit': 'MeasureUnit.W', 'value': -10000}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.VOLUME_FLOW', 'unit': 'MeasureUnit.M3_H', 'value': 1.299}
+              RECORD = {'function': 'FunctionType.MAXIMUM_VALUE', 'storage_number': 0, 'type': 'VIFUnit.VOLUME_FLOW', 'unit': 'MeasureUnit.M3_H', 'value': 1.584}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 0, 'type': 'VIFUnit.MANUFACTURER_SPEC', 'unit': 'MeasureUnit.NONE', 'value': 0}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 1, 'type': 'VIFUnit.ENERGY_WH', 'unit': 'MeasureUnit.WH', 'value': 0}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 1, 'type': 'VIFUnit.VOLUME', 'unit': 'MeasureUnit.M3', 'value': 0}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 1, 'type': 'VIFUnit.MANUFACTURER_SPEC', 'unit': 'MeasureUnit.NONE', 'value': 0}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 1, 'type': 'VIFUnit.MANUFACTURER_SPEC', 'unit': 'MeasureUnit.NONE', 'value': 0}
+              RECORD = {'function': 'FunctionType.MAXIMUM_VALUE', 'storage_number': 1, 'type': 'VIFUnit.POWER_W', 'unit': 'MeasureUnit.W', 'value': 0}
+              RECORD = {'function': 'FunctionType.MAXIMUM_VALUE', 'storage_number': 1, 'type': 'VIFUnit.VOLUME_FLOW', 'unit': 'MeasureUnit.M3_H', 'value': 0}
+              RECORD = {'function': 'FunctionType.INSTANTANEOUS_VALUE', 'storage_number': 1, 'type': 'VIFUnit.DATE', 'unit': 'MeasureUnit.DATE', 'value': '2023-01-01'}
+              """
+
+              # storage numer 1 does not contain any relevant values for Multical 303
+              if record['storage_number'] == 1:
+                continue
+
               if record['function'] == "FunctionType.INSTANTANEOUS_VALUE":
                 newvalue = str(record['type']).replace("VIFUnit.", "")
                 record.update({'type': newvalue})
 
+                # For Multical 601
                 if "tariff" in record:
                   # device = d; tariff = t
                   logger.debug(f"{self.__name}: RECORD: {record['type']}_d{record['device']}_t{record['tariff']} = {record['value']}")
                   self.__json_values[f"{record['type']}_d{record['device']}_t{record['tariff']}"] = record['value']
                 else:
                   logger.debug(f"{self.__name}: RECORD: {record['type']} = {record['value']}")
-                  self.__json_values[f"{record['type']}"] = record['value']
+
+                  # For temperatures, round to 2 digits
+                  if record['type'] == "FLOW_TEMPERATURE" or record['type'] == "RETURN_TEMPERATURE":
+                    self.__json_values[f"{record['type']}"] = round(record['value'],2)
+                  else:
+                    self.__json_values[f"{record['type']}"] = record['value']
 
           self.__publish_telegram()
 

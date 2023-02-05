@@ -19,7 +19,7 @@ loglevel = "INFO"
 # No safety checks build in for too high read_rate
 # You have to balance nrof devices, baud-rate and READ_RATE
 # With a baud-rate of 2400, reading one device takes about 1.3 seconds
-READ_RATE = 360  # Every 10sec
+READ_RATE = 60  # Every minute
 
 
 # [ MQTT Parameters ]
@@ -49,11 +49,11 @@ MBUS_STOPBIT = serial.STOPBITS_ONE
 
 # [ Kamstrup MBUS device(s) ]
 # Address 254 also works if only one device is connected
-# 254 = broadcast address (only use when single device is connected)
+# Address 254 = broadcast address (only use when single device is connected)
 # Use tools/mbus-serial-scan.py /dev/tty-<yourmbus dongle> to find your mbus address
 MBUS_KAMSTRUP_DEVICES = [
-{'name': 'MC601', 'mbus_address': 3},
-#{'name': 'MC303', 'mbus_address': 254}
+#{'name': 'MC601', 'mbus_address': 3},
+{'name': 'MC303', 'mbus_address': 11}
 ]
 
 # INFLUXDB

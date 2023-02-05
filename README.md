@@ -1,13 +1,15 @@
 # Kamstrup Multical MQTT
 MQTT client/parser for Kamstrup Multical family of heat/energy meters.
-- Tested with Kamstrup Multical 303 and 601
+- Tested with Kamstrup Multical 303 (in active heating system) 
+- Tested with Kamstrup Multical 601 (not mounted in heating system, 0 flow, 0 power)
 - Not all registers are implemented (eg the MAX value registers are ignored)
-- Supports multiple Kamstrup meters on one single MBUS
+- Supports multiple Kamstrup meters on one single MBUS (Meterbus)
+- Note: MBUS/Meterbus is not the same as MODBUS; You do need a MBUS adapater, MODBUS adapter will not work
 - Timestamps (used for influxdb) are generated with 1sec accuracy
 - All connected meters are read in a single sequential burst
 
 ## Coding:
-- MQTT JSON key coding: d=device; t=tarif
+- MQTT JSON key coding: d=device; t=tarif (used in Multical 601)
 
 ## Usage:
 * Copy `systemd/kamstrup-mqtt.service` to `/etc/systemd/system`
