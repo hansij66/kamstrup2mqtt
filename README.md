@@ -4,7 +4,7 @@ MQTT client/parser for Kamstrup Multical family of heat/energy meters.
 - Tested with Kamstrup Multical 601 (not mounted in heating system, 0 flow, 0 power)
 - Not all registers are implemented (eg the MAX value registers are ignored)
 - Supports multiple Kamstrup meters on one single MBUS (Meterbus)
-- Note: MBUS/Meterbus is not the same as MODBUS; You do need a MBUS adapater, MODBUS adapter will not work
+- Note: MBUS/Meterbus is not the same as MODBUS; You do need a MBUS adapter, MODBUS adapter will not work
 - Timestamps (used for influxdb) are generated with 1sec accuracy
 - All connected meters are read in a single sequential burst
 
@@ -31,7 +31,7 @@ to test & inspect MQTT messages
 Tested under Linux; there is no reason why it does not work under Windows.
 
 ## InfluxDB
-* Use `telegraf-kamstrup-powermeters.conf` as Telegraf configuration file to get kamstrup MQTT data into InfluxDB (version 1.x)
+* Use `telegraf-kamstrup-powermeters.conf` as Telegraf configuration file to get kamstrup MQTT data into InfluxDB
 
 ## Licence
 GPL v3
